@@ -1,14 +1,55 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
 export default function Login() {
-    const [email, setEmail] = useState("");
+    const navigate = useNavigate();
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = () => {console.log("Login")};
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+        setLoading(true);
+
+        try {
+            const res = await fetch("https://dummyjson.com/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password, expiresInMins: 30 }),
+                credentials: "include",
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.message || "Invalid credentials");
+                return;
+            }
+
+            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem("user", JSON.stringify({
+                id: data.id,
+                username: data.username,
+                email: data.email,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                role: data.role,
+                image: data.image,
+            }));
+
+            navigate("/dashboard");
+        } catch {
+            setError("Network error. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -20,12 +61,12 @@ export default function Login() {
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Email</Label>
+                            <Label>Username</Label>
                             <Input
-                                type="email"
-                                placeholder="example@gmail.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                type="text"
+                                placeholder="e.g. emilys"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 required
                             />
                         </div>
@@ -41,8 +82,12 @@ export default function Login() {
                             />
                         </div>
 
-                        <Button type="submit" className="w-full">
-                            Sign In
+                        {error && (
+                            <p className="text-sm text-red-500">{error}</p>
+                        )}
+
+                        <Button type="submit" className="w-full" disabled={loading}>
+                            {loading ? "Signing in..." : "Sign In"}
                         </Button>
                     </form>
                 </CardContent>
