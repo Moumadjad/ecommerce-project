@@ -2,6 +2,8 @@ import { useState } from "react";
 import AdminLayout from "../AdminLayout";
 
 export default function OrderTracking() {
+    const [search, setSearch] = useState("");
+    
     const [orders, setOrders] = useState([
         {
             id: "#1001",
@@ -86,11 +88,27 @@ export default function OrderTracking() {
         );
     };
 
+    const filteredOrders = orders.filter((order) =>
+        order.id.toLowerCase().includes(search.toLowerCase()) ||
+        order.client.toLowerCase().includes(search.toLowerCase())
+    );
+
+
     return (
         <AdminLayout>
             <h1 className="text-3xl font-bold mb-6">
                 Order Tracking
             </h1>
+
+            <div className="mb-4">
+                <input
+                    type="text"
+                    placeholder="Search by Order ID or Client..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full md:w-1/3 border px-3 py-2 rounded"
+                />
+            </div>
 
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="w-full">
@@ -106,7 +124,7 @@ export default function OrderTracking() {
                     </thead>
 
                     <tbody>
-                        {orders.map((order) => (
+                        {filteredOrders.map((order) => (
                             <tr key={order.id} className="border-t">
                                 <td className="p-3">{order.id}</td>
                                 <td className="p-3">{order.client}</td>
@@ -127,25 +145,14 @@ export default function OrderTracking() {
                                     <select
                                         value={order.status}
                                         onChange={(e) =>
-                                            updateStatus(
-                                                order.id,
-                                                e.target.value
-                                            )
+                                            updateStatus(order.id, e.target.value)
                                         }
                                         className="border rounded px-2 py-1 text-sm"
                                     >
-                                        <option value="Pending">
-                                            Pending
-                                        </option>
-                                        <option value="Processing">
-                                            Processing
-                                        </option>
-                                        <option value="Delivered">
-                                            Delivered
-                                        </option>
-                                        <option value="Cancelled">
-                                            Cancelled
-                                        </option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Processing">Processing</option>
+                                        <option value="Delivered">Delivered</option>
+                                        <option value="Cancelled">Cancelled</option>
                                     </select>
                                 </td>
                             </tr>
