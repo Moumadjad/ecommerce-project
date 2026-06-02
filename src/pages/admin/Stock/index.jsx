@@ -14,7 +14,11 @@ async function fetchProducts() {
 }
 
 export default function StockManagement() {
-  const { data: apiProducts, isLoading, isError } = useQuery({
+  const {
+    data: apiProducts,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["products"],
     queryFn: fetchProducts,
   });
@@ -64,8 +68,8 @@ export default function StockManagement() {
                 category: form.category,
                 stock: parseInt(form.stock, 10),
               }
-            : p
-        )
+            : p,
+        ),
       );
     } else {
       setLocalProducts((prev) => [
@@ -87,6 +91,8 @@ export default function StockManagement() {
     setLocalProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
+  const lowStockProducts = products.filter((p) => p.stock <= 10);
+
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
@@ -101,7 +107,17 @@ export default function StockManagement() {
           onAddClick={openAdd}
         />
       </div>
+{lowStockProducts.length > 0 && (
+  <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+    <h3 className="font-semibold text-red-700">
+      ⚠ Stock Alert
+    </h3>
 
+    <p className="text-sm text-red-600">
+      {lowStockProducts.length} product(s) require restocking.
+    </p>
+  </div>
+)}
       <ProductTable
         products={products}
         onEdit={openEdit}

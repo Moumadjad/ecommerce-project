@@ -11,12 +11,21 @@ import { Button } from "@/components/ui/button";
 
 const PAGE_SIZE = 10;
 
-export default function ProductTable({ products, onEdit, onDelete, isLoading, isError }) {
+export default function ProductTable({
+  products,
+  onEdit,
+  onDelete,
+  isLoading,
+  isError,
+}) {
   const [page, setPage] = useState(1);
 
   const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const paginated = products.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const paginated = products.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -37,13 +46,16 @@ export default function ProductTable({ products, onEdit, onDelete, isLoading, is
                   <TableHead>Category</TableHead>
                   <TableHead className="text-right">Price</TableHead>
                   <TableHead className="text-center">Stock</TableHead>
+                  <TableHead className="text-center">Alert</TableHead>
                   <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginated.map((product) => (
                   <TableRow key={product.id}>
-                    <TableCell className="text-gray-400">{product.id}</TableCell>
+                    <TableCell className="text-gray-400">
+                      {product.id}
+                    </TableCell>
                     <TableCell>
                       <img
                         src={product.image}
@@ -66,16 +78,35 @@ export default function ProductTable({ products, onEdit, onDelete, isLoading, is
                           product.stock > 50
                             ? "bg-green-100 text-green-700"
                             : product.stock > 10
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-red-100 text-red-700"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-red-100 text-red-700"
                         }`}
                       >
                         {product.stock}
                       </span>
                     </TableCell>
                     <TableCell className="text-center">
+                      {product.stock <= 10 ? (
+                        <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">
+                          Critical
+                        </span>
+                      ) : product.stock <= 50 ? (
+                        <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">
+                          Low
+                        </span>
+                      ) : (
+                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">
+                          Healthy
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <Button size="sm" variant="outline" onClick={() => onEdit(product)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onEdit(product)}
+                        >
                           Edit
                         </Button>
                         <Button
@@ -91,7 +122,10 @@ export default function ProductTable({ products, onEdit, onDelete, isLoading, is
                 ))}
                 {paginated.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-gray-400 py-8">
+                    <TableCell
+                      colSpan={8}
+                      className="text-center text-gray-400 py-8"
+                    >
                       No products found.
                     </TableCell>
                   </TableRow>
@@ -103,8 +137,10 @@ export default function ProductTable({ products, onEdit, onDelete, isLoading, is
           {/* Pagination */}
           <div className="flex items-center justify-between text-sm text-gray-500">
             <span>
-              Showing {products.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–
-              {Math.min(safePage * PAGE_SIZE, products.length)} of {products.length} products
+              Showing{" "}
+              {products.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–
+              {Math.min(safePage * PAGE_SIZE, products.length)} of{" "}
+              {products.length} products
             </span>
             <div className="flex items-center gap-1">
               <Button
